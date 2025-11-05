@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
     @EntityGraph(attributePaths = "items.product")
-    @Query("SELECT o FROM Order o WHERE o.customer = :customer")
+    @Query("SELECT o FROM Order  o WHERE o.customer = :customer")
     List<Order> getOrdersByCustomer(@Param("customer") User customer);
 
     @EntityGraph(attributePaths = "items.product")

@@ -20,12 +20,12 @@ public class Order {
 
     public static Order fromCart(Cart cart, User customer) {
         Order order = new Order();
-        order.setStatus(OrderStatus.PENDING);
         order.setCustomer(customer);
+        order.setStatus(OrderStatus.PENDING);
         order.setTotalPrice(cart.getTotalPrice());
 
         cart.getItems().forEach(item -> {
-            OrderItem orderItem = new OrderItem(order,item.getProduct(),item.getQuantity());
+            OrderItem orderItem = new OrderItem(order, item.getProduct(), item.getQuantity());
             order.items.add(orderItem);
         });
 
@@ -51,7 +51,7 @@ public class Order {
     @Column(name = "total_price")
     private BigDecimal totalPrice;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "order", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private Set<OrderItem> items = new LinkedHashSet<>();
 
 

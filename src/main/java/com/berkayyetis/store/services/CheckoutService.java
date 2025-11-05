@@ -6,23 +6,36 @@ import com.berkayyetis.store.dtos.ErrorDto;
 import com.berkayyetis.store.entities.Order;
 import com.berkayyetis.store.exceptions.CartEmptyException;
 import com.berkayyetis.store.exceptions.CartNotFoundException;
+import com.berkayyetis.store.exceptions.PaymentException;
 import com.berkayyetis.store.repositories.CartRepository;
 import com.berkayyetis.store.repositories.OrderRepository;
+import com.stripe.exception.StripeException;
+import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@AllArgsConstructor
+import java.math.BigDecimal;
+
+@RequiredArgsConstructor
 @Service
 public class CheckoutService {
     private final CartRepository cartRepository;
     private final AuthService authService;
     private final OrderRepository orderRepository;
     private final CartService cartService;
+    private final PaymentGateway paymentGateway;
 
-    public CheckoutResponse checkout(CheckoutRequest checkoutRequest) {
+    @Value("${stripe.secretKey}")
+    private String stripeApiKey;
+
+
+    public CheckoutResponse checkout(CheckoutRequest checkoutRequest) throws PaymentException {
         System.out.println("Checkout request: " + checkoutRequest);
         var cartId = checkoutRequest.getCartId();
         var cart = cartRepository.getCartWithItems(cartId).orElse(null);
@@ -35,10 +48,22 @@ public class CheckoutService {
         }
 
         var order = Order.fromCart(cart, authService.getUser());
-
         orderRepository.save(order);
-        cartService.clearCart(cartId);
 
-        return new CheckoutResponse(order.getId());
+        try {
+            var session = paymentGateway.createCheckoutSession(order);
+
+            cartService.clearCart(cartId);
+
+            return new CheckoutResponse(order.getId(), session.getCheckoutUrl());
+        }catch (PaymentException e) {
+            System.out.println(e.getMessage());
+            orderRepository.delete(order);
+            throw e;
+        }
+
+
+
+
     }
 }

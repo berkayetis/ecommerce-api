@@ -8,11 +8,13 @@ import com.berkayyetis.store.entities.OrderItem;
 import com.berkayyetis.store.entities.OrderStatus;
 import com.berkayyetis.store.exceptions.CartEmptyException;
 import com.berkayyetis.store.exceptions.CartNotFoundException;
+import com.berkayyetis.store.exceptions.PaymentException;
 import com.berkayyetis.store.repositories.CartRepository;
 import com.berkayyetis.store.repositories.OrderRepository;
 import com.berkayyetis.store.services.AuthService;
 import com.berkayyetis.store.services.CartService;
 import com.berkayyetis.store.services.CheckoutService;
+import com.stripe.exception.StripeException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,8 +31,14 @@ public class CheckoutController {
 
     @PostMapping
     public CheckoutResponse checkout(@Valid @RequestBody CheckoutRequest checkoutRequest) {
-        var result = checkoutService.checkout(checkoutRequest);
-        return result;
+            return checkoutService.checkout(checkoutRequest);
+    }
+
+    @ExceptionHandler({PaymentException.class})
+    public ResponseEntity<?> handlePaymentException(PaymentException e) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorDto("Error creating a checkout session"));
     }
 
     @ExceptionHandler({CartNotFoundException.class, CartEmptyException.class})
