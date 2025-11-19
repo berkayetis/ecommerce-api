@@ -2,25 +2,20 @@ package com.berkayyetis.store.services;
 
 import com.berkayyetis.store.dtos.CheckoutRequest;
 import com.berkayyetis.store.dtos.CheckoutResponse;
-import com.berkayyetis.store.dtos.ErrorDto;
 import com.berkayyetis.store.entities.Order;
+import com.berkayyetis.store.entities.PaymentStatus;
 import com.berkayyetis.store.exceptions.CartEmptyException;
 import com.berkayyetis.store.exceptions.CartNotFoundException;
 import com.berkayyetis.store.exceptions.PaymentException;
 import com.berkayyetis.store.repositories.CartRepository;
 import com.berkayyetis.store.repositories.OrderRepository;
-import com.stripe.exception.StripeException;
-import com.stripe.model.checkout.Session;
-import com.stripe.param.checkout.SessionCreateParams;
-import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import com.stripe.exception.SignatureVerificationException;
+import com.stripe.model.PaymentIntent;
+import com.stripe.net.Webhook;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-
-import java.math.BigDecimal;
 
 @RequiredArgsConstructor
 @Service
@@ -30,6 +25,7 @@ public class CheckoutService {
     private final OrderRepository orderRepository;
     private final CartService cartService;
     private final PaymentGateway paymentGateway;
+
 
     @Value("${stripe.secretKey}")
     private String stripeApiKey;
@@ -61,9 +57,15 @@ public class CheckoutService {
             orderRepository.delete(order);
             throw e;
         }
+    }
 
-
-
-
+    public void handleWebhookEvent(WebhookRequest webhookRequest){
+        paymentGateway
+                .parseWebhookRequest(webhookRequest)
+                .ifPresent(paymentResult -> {
+                    var order = orderRepository.findById(paymentResult.getOrderId()).orElseThrow();
+                    order.setStatus(paymentResult.getPaymentStatus());
+                    orderRepository.save(order);
+                });
     }
 }

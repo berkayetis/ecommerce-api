@@ -3,35 +3,36 @@ package com.berkayyetis.store.controllers;
 import com.berkayyetis.store.dtos.CheckoutRequest;
 import com.berkayyetis.store.dtos.CheckoutResponse;
 import com.berkayyetis.store.dtos.ErrorDto;
-import com.berkayyetis.store.entities.Order;
-import com.berkayyetis.store.entities.OrderItem;
-import com.berkayyetis.store.entities.OrderStatus;
 import com.berkayyetis.store.exceptions.CartEmptyException;
 import com.berkayyetis.store.exceptions.CartNotFoundException;
 import com.berkayyetis.store.exceptions.PaymentException;
-import com.berkayyetis.store.repositories.CartRepository;
 import com.berkayyetis.store.repositories.OrderRepository;
-import com.berkayyetis.store.services.AuthService;
-import com.berkayyetis.store.services.CartService;
 import com.berkayyetis.store.services.CheckoutService;
-import com.stripe.exception.StripeException;
+import com.berkayyetis.store.services.WebhookRequest;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/checkout")
 public class CheckoutController {
+    private final OrderRepository orderRepository;
+
+
     private final CheckoutService checkoutService;
 
     @PostMapping
     public CheckoutResponse checkout(@Valid @RequestBody CheckoutRequest checkoutRequest) {
             return checkoutService.checkout(checkoutRequest);
+    }
+    @PostMapping("/webhook")
+    public void handleWebhook(@RequestBody String payload, @RequestHeader Map<String, String> sigHeader) {
+        checkoutService.handleWebhookEvent(new WebhookRequest(payload, sigHeader));
     }
 
     @ExceptionHandler({PaymentException.class})

@@ -17,4 +17,5 @@ spring:
       port: 6379
 stripe:
   secretKey: ${STRIPE_API_KEY}
+  webhookSecretKey: ${STRIPE_WEBHOOK_SECRET}
   webUrl: http://localhost:4242
