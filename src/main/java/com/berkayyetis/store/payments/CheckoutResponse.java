@@ -1,4 +1,4 @@
-package com.berkayyetis.store.dtos;
+package com.berkayyetis.store.payments;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

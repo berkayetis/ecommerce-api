@@ -1,20 +1,14 @@
-package com.berkayyetis.store.services;
+package com.berkayyetis.store.payments;
 
-import com.berkayyetis.store.dtos.CheckoutRequest;
-import com.berkayyetis.store.dtos.CheckoutResponse;
 import com.berkayyetis.store.entities.Order;
-import com.berkayyetis.store.entities.PaymentStatus;
 import com.berkayyetis.store.exceptions.CartEmptyException;
 import com.berkayyetis.store.exceptions.CartNotFoundException;
-import com.berkayyetis.store.exceptions.PaymentException;
 import com.berkayyetis.store.repositories.CartRepository;
 import com.berkayyetis.store.repositories.OrderRepository;
-import com.stripe.exception.SignatureVerificationException;
-import com.stripe.model.PaymentIntent;
-import com.stripe.net.Webhook;
+import com.berkayyetis.store.services.AuthService;
+import com.berkayyetis.store.services.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor

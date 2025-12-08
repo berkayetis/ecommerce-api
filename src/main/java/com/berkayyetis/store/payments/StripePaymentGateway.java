@@ -1,10 +1,8 @@
-package com.berkayyetis.store.services;
+package com.berkayyetis.store.payments;
 
-import com.berkayyetis.store.dtos.CheckoutResponse;
 import com.berkayyetis.store.entities.Order;
 import com.berkayyetis.store.entities.OrderItem;
 import com.berkayyetis.store.entities.PaymentStatus;
-import com.berkayyetis.store.exceptions.PaymentException;
 import com.berkayyetis.store.repositories.OrderRepository;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
@@ -13,10 +11,8 @@ import com.stripe.model.PaymentIntent;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
 import com.stripe.param.checkout.SessionCreateParams;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

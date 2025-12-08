@@ -1,4 +1,4 @@
-package com.berkayyetis.store.services;
+package com.berkayyetis.store.payments;
 
 import com.berkayyetis.store.entities.PaymentStatus;
 import lombok.AllArgsConstructor;

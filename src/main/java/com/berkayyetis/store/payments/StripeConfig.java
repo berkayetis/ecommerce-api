@@ -1,4 +1,4 @@
-package com.berkayyetis.store.configs;
+package com.berkayyetis.store.payments;
 
 import com.stripe.Stripe;
 import jakarta.annotation.PostConstruct;

@@ -1,4 +1,4 @@
-package com.berkayyetis.store.dtos;
+package com.berkayyetis.store.payments;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
